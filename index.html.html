@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Will you be my Valentine? 💖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #ffdde1 0%, #f9c9e7 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+            padding: 16px;
+        }
+        /* floating heart balloons container */
+        .balloon-world {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* so clicks pass through to buttons */
+            z-index: 1;
+            overflow: hidden;
+        }
+        .heart-balloon {
+            position: absolute;
+            bottom: -20vh; /* start below screen */
+            font-size: clamp(1.8rem, 8vw, 3.4rem);
+            opacity: 0.8;
+            filter: drop-shadow(0 8px 12px rgba(232, 65, 130, 0.3));
+            animation: floatUp linear infinite;
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+            will-change: transform;
+            transform: translateZ(0);
+            z-index: 1;
+        }
+        /* different sizes and speeds */
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.9);
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-50vh) rotate(5deg) scale(1.1);
+            }
+            100% {
+                transform: translateY(-110vh) rotate(-5deg) scale(0.8);
+                opacity: 0.3;
+            }
+        }
+
+        /* main card */
+        .valentine-card {
+            position: relative;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 48px 48px 40px 40px;
+            box-shadow: 0 30px 50px rgba(233, 30, 99, 0.2),
+                        0 0 0 2px rgba(255,255,240,0.5) inset;
+            max-width: 620px;
+            width: 100%;
+            padding: 32px 24px 40px 24px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.7);
+            transition: 0.2s;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 10vw, 3.2rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #d6336c, #b3255e, #ff8da1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 20px rgba(255, 120, 160, 0.4);
+            letter-spacing: -0.5px;
+        }
+
+        .question {
+            font-size: clamp(1.8rem, 7vw, 2.6rem);
+            font-weight: 600;
+            color: #a52d5b;
+            margin-bottom: 28px;
+            background: rgba(255,255,240,0.5);
+            padding: 12px 16px;
+            border-radius: 120px;
+            display: inline-block;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 8px rgba(255, 200, 220, 0.6);
+        }
+
+        /* button container */
+        .button-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            margin: 30px 0 25px;
+            position: relative;
+            min-height: 100px;
+            align-items: center;
+        }
+
+        .btn {
+            font-size: clamp(1.6rem, 6vw, 2.2rem);
+            font-weight: bold;
+            padding: 18px 38px;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 12px 0 #9e2a5b, 0 8px 20px rgba(200, 60, 110, 0.5);
+            transition: all 0.1s ease;
+            background-color: #ffb0c3;
+            color: #4b1e33;
+            letter-spacing: 1px;
+            transform: translateY(0);
+            border: 2px solid #fff9;
+            min-width: 150px;
+            flex: 0 1 auto;
+            touch-action: manipulation; /* improves mobile tapping */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-yes {
+            background: #ff85b3;
+            box-shadow: 0 12px 0 #b63b6b, 0 8px 20px #ff99bb;
+            color: #2f1422;
+        }
+
+        .btn-no {
+            background: #f5b0c7;
+            box-shadow: 0 12px 0 #b24b77, 0 8px 20px #f5b0c7;
+            color: #381c29;
+        }
+
+        /* moving no button special class */
+        .btn-no.moving {
+            transition: left 0.08s ease, top 0.08s ease, right 0.08s ease;
+            position: relative;
+            will-change: left, top;
+        }
+
+        /* yes clicked state - hidden message */
+        .hidden-message {
+            display: none;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            background: rgba(255, 220, 240, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 30px 18px;
+            border-radius: 80px 80px 40px 40px;
+            margin-top: 20px;
+            color: #b02c5c;
+            font-weight: 600;
+            border: 3px dashed #ff5c8a;
+            box-shadow: 0 20px 30px #ffacc7;
+            line-height: 1.5;
+        }
+
+        .hidden-message span {
+            display: block;
+            font-size: 3rem;
+            filter: drop-shadow(2px 4px 4px #ff809d);
+        }
+
+        .show-message .hidden-message {
+            display: block;
+        }
+
+        .show-message .question,
+        .show-message .button-panel {
+            display: none;
+        }
+
+        /* tiny footer */
+        .footer-heart {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #ad3f6e;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- moving heart balloons container -->
+    <div class="balloon-world" id="balloonWorld"></div>
+
+    <!-- main card -->
+    <div class="valentine-card" id="mainCard">
+        <h1>💘 Valentine 💘</h1>
+        <div class="question">💖 Will you be my Valentine? 💖</div>
+
+        <!-- button panel with yes / no -->
+        <div class="button-panel" id="buttonPanel">
+            <button class="btn btn-yes" id="yesBtn">YES 💕</button>
+            <button class="btn btn-no" id="noBtn">NO 🙅‍♀️</button>
+        </div>
+
+        <!-- hidden message after YES click -->
+        <div class="hidden-message" id="loveMessage">
+            💋 i knew u would say YES! 💋<br>
+            <span>❤️❤️❤️</span>
+            meet you today at ECR BEACH at 5pm<br>
+            with a thousand hearts 💓💓💓
+        </div>
+
+        <div class="footer-heart">❤️ hearts are floating just for you ❤️</div>
+    </div>
+
+    <script>
+        (function() {
+            // ==========  HEART BALLOON GENERATOR ==========
+            const balloonWorld = document.getElementById('balloonWorld');
+            const heartSymbols = ['❤️', '🧡', '💛', '💚', '💙', '💜', '🩷', '💖', '💗', '💘', '💝', '❤️‍🔥', '❣️', '💕', '💞', '💓'];
+            
+            function createBalloon() {
+                const balloon = document.createElement('div');
+                balloon.className = 'heart-balloon';
+                // random heart
+                const randomHeart = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                balloon.textContent = randomHeart + '🎈';  // balloon+heart cute combo
+                
+                // random size (via font-size overwritten but we keep some random)
+                const scale = 0.7 + Math.random() * 1.2;
+                balloon.style.fontSize = (scale * 2.4) + 'rem';
+                
+                // random left position (5% to 95%)
+                balloon.style.left = Math.random() * 90 + 5 + '%';
+                
+                // random animation duration between 8s and 22s
+                const duration = 8 + Math.random() * 16;
+                balloon.style.animationDuration = duration + 's';
+                
+                // random delay so they don't all start together
+                balloon.style.animationDelay = Math.random() * 8 + 's';
+                
+                // slight opacity variation
+                balloon.style.opacity = 0.5 + Math.random() * 0.4;
+                
+                balloonWorld.appendChild(balloon);
+                
+                // remove after animation ends to prevent too many divs (approx duration+delay)
+                setTimeout(() => {
+                    if (balloon.parentNode) balloon.remove();
+                }, (duration + 8) * 1000);
+            }
+
+            // initially create 20 balloons
+            for (let i = 0; i < 22; i++) {
+                setTimeout(() => createBalloon(), i * 200); // spread out
+            }
+            // keep adding new balloons every 2 seconds
+            setInterval(createBalloon, 2000);
+
+            // ==========  MOVING "NO" BUTTON ==========
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            const mainCard = document.getElementById('mainCard');
+            const buttonPanel = document.getElementById('buttonPanel');
+            
+            // make noBtn movable on hover / touch
+            function moveNoButton(e) {
+                // do not move if yes was already clicked (card in message mode)
+                if (mainCard.classList.contains('show-message')) return;
+
+                // Get viewport dimensions
+                const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+                const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+
+                // Get no button position and dimensions
+                const btnRect = noBtn.getBoundingClientRect();
+                const btnWidth = btnRect.width;
+                const btnHeight = btnRect.height;
+
+                // padding from edges (min 10px)
+                const padding = 15;
+
+                // calculate maximum allowed left/top for button relative to viewport
+                const maxLeft = vw - btnWidth - padding;
+                const maxTop = vh - btnHeight - padding;
+
+                // Generate random new position within safe area
+                let newLeft = Math.random() * maxLeft;
+                let newTop = Math.random() * maxTop;
+
+                // but avoid the area near the YES button? not strictly necessary, but make it fun
+                // ensure new position is not too close to the yes button (optional)
+                const yesRect = yesBtn.getBoundingClientRect();
+                const yesCenterX = yesRect.left + yesRect.width/2;
+                const yesCenterY = yesRect.top + yesRect.height/2;
+                
+                // check distance: try up to 10 times to avoid overlapping YES
+                let attempts = 0;
+                let distOk = false;
+                while (attempts < 15) {
+                    const newCenterX = newLeft + btnWidth/2;
+                    const newCenterY = newTop + btnHeight/2;
+                    const dist = Math.hypot(newCenterX - yesCenterX, newCenterY - yesCenterY);
+                    if (dist > 150 || attempts > 12) { // if far enough or too many tries, accept
+                        distOk = true;
+                        break;
+                    }
+                    // retry random
+                    newLeft = Math.random() * maxLeft;
+                    newTop = Math.random() * maxTop;
+                    attempts++;
+                }
+
+                // Apply new position (use fixed positioning relative to viewport)
+                // we need to make button position fixed or absolute relative to viewport?
+                // We'll use fixed positioning on the button itself, but it lives inside relative card.
+                // So easier: set position fixed on the button while moving.
+                // But we also have to keep it inside buttonPanel? We'll set fixed and adjust.
+                // But we want the panel to remain, so we temporarily make noBtn fixed.
+                noBtn.style.position = 'fixed';
+                noBtn.style.left = newLeft + 'px';
+                noBtn.style.top = newTop + 'px';
+                noBtn.style.zIndex = '999';
+                noBtn.style.transition = 'left 0.1s ease, top 0.1s ease'; // quick jump
+
+                // re-enable transition after small tick
+                // also store a reference to ensure we remove fixed later? 
+                // But user might click yes anywhere. 
+                // We'll need to reset fixed on window resize? but for fun it's ok.
+                // to avoid button escaping too far, we set a safety reset if the user clicks yes
+            }
+
+            // attach event listeners for mouseenter and touchstart (for mobile)
+            noBtn.addEventListener('mouseenter', moveNoButton);
+            noBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();  // prevent double tap zoom
+                moveNoButton(e);
+            }, { passive: false });
+
+            // also move on touchmove for better mobile response
+            noBtn.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                moveNoButton(e);
+            }, { passive: false });
+
+            // If user clicks on YES
+            yesBtn.addEventListener('click', function() {
+                mainCard.classList.add('show-message');
+                // Reset no button fixed position (optional) hide it in message mode anyway
+                noBtn.style.position = '';
+                noBtn.style.left = '';
+                noBtn.style.top = '';
+            });
+
+            // Handle edge case: if the no button goes out of bounds because of scroll / resize
+            window.addEventListener('resize', function() {
+                // reset no button position to default within panel (remove fixed)
+                if (!mainCard.classList.contains('show-message')) {
+                    noBtn.style.position = '';
+                    noBtn.style.left = '';
+                    noBtn.style.top = '';
+                }
+            });
+
+            // Also when orientationchange (same as resize)
+            // Finally if they try to click NO (the button still works even if moving)
+            noBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // also move away immediately after click attempt
+                if (!mainCard.classList.contains('show-message')) {
+                    moveNoButton(e);
+                }
+            });
+
+            // if user taps on the "NO" and it moves, still need to avoid accidental click
+            // we already move on click, and prevent default.
+
+            // Make sure any click/tap on NO never triggers the message
+            noBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // move again
+                moveNoButton(e);
+                return false;
+            });
+
+            // for touch, also prevent default
+            noBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                moveNoButton(e);
+            });
+
+            // Ensure the YES button is always clickable, and shows message
+            // Also if user taps on background, all good.
+
+            // Preload: force no btn to be non-fixed initially
+            window.addEventListener('load', function() {
+                noBtn.style.position = '';
+                noBtn.style.left = '';
+                noBtn.style.top = '';
+            });
+
+            // quick fix for android keyboard etc
+            // ---------- second layer of heart: add some flying hearts on mousemove? optional, but fine.
+        })();
+    </script>
+
+    <!-- additional inline tweak for double insurance: no button moving on click -->
+    <script>
+        (function extraMove() {
+            // re-get noBtn if needed, but we already have inside closure; however we double-ensure
+            const noBtn = document.getElementById('noBtn');
+            const mainCard = document.getElementById('mainCard');
+            if (!noBtn) return;
+
+            function runaway(e) {
+                if (mainCard.classList.contains('show-message')) return;
+                e.preventDefault?.();
+                e.stopPropagation?.();
+                // use same moving logic as before but we can call our own small random
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                const rect = noBtn.getBoundingClientRect();
+                const maxL = vw - rect.width - 20;
+                const maxT = vh - rect.height - 20;
+                if (maxL < 40 || maxT < 40) return; // too small screen, stay safe
+
+                let newL = Math.random() * maxL;
+                let newT = Math.random() * maxT;
+
+                noBtn.style.position = 'fixed';
+                noBtn.style.left = newL + 'px';
+                noBtn.style.top = newT + 'px';
+                noBtn.style.zIndex = '999';
+                noBtn.style.transition = 'left 0.08s, top 0.08s';
+            }
+
+            noBtn.addEventListener('mouseenter', runaway);
+            noBtn.addEventListener('touchstart', runaway, { passive: false });
+            noBtn.addEventListener('click', (e) => {
+                if (mainCard.classList.contains('show-message')) return;
+                e.preventDefault();
+                e.stopPropagation();
+                runaway(e);
+            }, { capture: true }); // capture to run early
+
+            // reset on yes click
+            document.getElementById('yesBtn').addEventListener('click', function() {
+                noBtn.style.position = '';
+                noBtn.style.left = '';
+                noBtn.style.top = '';
+            });
+        })();
+    </script>
+</body>
+</html>
